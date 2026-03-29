@@ -82,7 +82,11 @@ public class TodoDao {
 
 			ps.setString(1, todo.getTitle());
 			ps.setString(2, todo.getDescription());
-			ps.setDate(3, Date.valueOf(todo.getDueDate()));
+			if (todo.getDueDate() != null) {
+				ps.setDate(3, Date.valueOf(todo.getDueDate()));
+			} else {
+				ps.setNull(3, java.sql.Types.DATE);
+			}
 			ps.setBoolean(4, todo.isCompleted());
 			ps.setInt(5, todo.getId());
 
@@ -110,6 +114,32 @@ public class TodoDao {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public Todo findById(int id) {
+		String sql = "SELECT id, title, description, due_date, is_completed FROM todos WHERE id = ?";
+
+		try (Connection conn = DBUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setInt(1, id);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					java.sql.Date d = rs.getDate("due_date");
+					java.time.LocalDate due = (d != null) ? d.toLocalDate() : null;
+					return new Todo(
+							rs.getInt("id"),
+							rs.getString("title"),
+							rs.getString("description"),
+							due,
+							rs.getBoolean("is_completed")
+					);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

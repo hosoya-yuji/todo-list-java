@@ -11,14 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Todo;
 import model.TodoDao;
 
-@WebServlet("/add")
-public class TodoAddServlet extends HttpServlet {
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        req.getRequestDispatcher("/form.jsp").forward(req, resp);
-    }
+@WebServlet("/update")
+public class TodoUpdateServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -26,6 +20,7 @@ public class TodoAddServlet extends HttpServlet {
 
         req.setCharacterEncoding("UTF-8");
 
+        String idStr = req.getParameter("id");
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String dueStr = req.getParameter("dueDate");
@@ -35,6 +30,10 @@ public class TodoAddServlet extends HttpServlet {
         StringBuilder errAll = new StringBuilder();
         String errTitle = null;
         String errDue = null;
+
+        if (idStr == null || idStr.isBlank()) {
+            errAll.append("IDが不正です。");
+        }
 
         if (normalizedTitle == null || normalizedTitle.isEmpty()) {
             errTitle = "タイトルは必須です。";
@@ -56,6 +55,9 @@ public class TodoAddServlet extends HttpServlet {
         }
 
         if (errTitle != null) {
+            if (errAll.length() > 0) {
+                errAll.append("<br>");
+            }
             errAll.append(errTitle);
         }
         if (errDue != null) {
@@ -72,27 +74,32 @@ public class TodoAddServlet extends HttpServlet {
             req.setAttribute("errorTitle", errTitle);
             req.setAttribute("errorDue", errDue);
 
+            req.setAttribute("id", idStr);
             req.setAttribute("title", title);
             req.setAttribute("description", description);
             req.setAttribute("dueDate", dueStr);
             req.setAttribute("isCompleted", isCompleted);
+            req.setAttribute("isEdit", true);
 
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             req.getRequestDispatcher("/form.jsp").forward(req, resp);
             return;
         }
 
-        Todo t = new Todo(normalizedTitle, description, due, isCompleted);
-        boolean ok = new TodoDao().insert(t);
+        int id = Integer.parseInt(idStr);
+        Todo t = new Todo(id, normalizedTitle, description, due, isCompleted);
+        boolean ok = new TodoDao().update(t);
 
         if (ok) {
             resp.sendRedirect(req.getContextPath() + "/list");
         } else {
-            req.setAttribute("error", "登録に失敗しました。もう一度お試しください。");
+            req.setAttribute("error", "更新に失敗しました。もう一度お試しください。");
+            req.setAttribute("id", idStr);
             req.setAttribute("title", title);
             req.setAttribute("description", description);
             req.setAttribute("dueDate", dueStr);
             req.setAttribute("isCompleted", isCompleted);
+            req.setAttribute("isEdit", true);
             req.getRequestDispatcher("/form.jsp").forward(req, resp);
         }
     }

@@ -9,64 +9,71 @@
  String dueVal   = (String) request.getAttribute("dueDate");
  Boolean checked = (Boolean) request.getAttribute("isCompleted");
  if (checked == null) checked = false;
+ Boolean isEdit = (Boolean) request.getAttribute("isEdit");
+ if (isEdit == null) isEdit = false;
+ Object idObj = request.getAttribute("id");
+ String idVal = (idObj != null) ? idObj.toString() : "";
 
- // 今日の日付文字列（yyyy-MM-dd）
  String today = java.time.LocalDate.now().toString();
 %>
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>TODO登録フォーム</title>
-  <style>
-    .error { color: red; }
-    .field-error { color: red; font-size: 0.9em; margin-left: 6px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= isEdit ? "Edit Task" : "New Task" %></title>
+  <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/app.css">
 </head>
 <body>
-  <h2>TODO登録フォーム</h2>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
 
-  <% if (error != null) { %>
-    <div class="error"><%= error %></div>
-  <% } %>
+  <main class="app-shell app-shell-narrow">
+    <section class="panel">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Task Editor</p>
+          <h1><%= isEdit ? "Edit Task" : "Create Task" %></h1>
+        </div>
+        <a class="btn btn-ghost" href="<%= request.getContextPath() %>/list">Back to List</a>
+      </header>
 
-  <form action="<%= request.getContextPath() %>/add" method="post" novalidate>
-    <div>
-      タイトル：
-      <input type="text" name="title" required maxlength="100"
-             value="<%= titleVal != null ? titleVal : "" %>">
-      <% if (errorTitle != null) { %>
-        <span class="field-error"><%= errorTitle %></span>
+      <% if (error != null) { %>
+        <div class="alert"><%= error %></div>
       <% } %>
-    </div>
-    <br>
 
-    <div>
-      説明：<br>
-      <textarea name="description" rows="3" cols="30"><%= descVal != null ? descVal : "" %></textarea>
-    </div>
-    <br>
+      <form class="todo-form" action="<%= request.getContextPath() %><%= isEdit ? "/update" : "/add" %>" method="post" novalidate>
+        <% if (isEdit) { %>
+          <input type="hidden" name="id" value="<%= idVal != null ? idVal : "" %>">
+        <% } %>
 
-    <div>
-      期限：
-      <input type="date" name="dueDate" required
-             min="<%= today %>"
-             value="<%= dueVal != null ? dueVal : "" %>">
-      <% if (errorDue != null) { %>
-        <span class="field-error"><%= errorDue %></span>
-      <% } %>
-    </div>
-    <br>
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" required maxlength="100" value="<%= titleVal != null ? titleVal : "" %>">
+        <% if (errorTitle != null) { %>
+          <p class="field-error"><%= errorTitle %></p>
+        <% } %>
 
-    <div>
-      完了：<input type="checkbox" name="isCompleted" <%= checked ? "checked" : "" %>>
-    </div>
-    <br>
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4"><%= descVal != null ? descVal : "" %></textarea>
 
-    <input type="submit" value="登録">
-  </form>
+        <label for="dueDate">Due Date</label>
+        <input id="dueDate" type="date" name="dueDate" min="<%= today %>" value="<%= dueVal != null ? dueVal : "" %>">
+        <% if (errorDue != null) { %>
+          <p class="field-error"><%= errorDue %></p>
+        <% } %>
 
-  <br>
-  <a href="<%= request.getContextPath() %>/list">一覧に戻る</a>
+        <% if (isEdit) { %>
+          <label class="check-row" for="isCompleted">
+            <input id="isCompleted" type="checkbox" name="isCompleted" <%= checked ? "checked" : "" %>>
+            <span>Completed</span>
+          </label>
+        <% } %>
+
+        <div class="form-actions">
+          <input class="btn btn-primary" type="submit" value="<%= isEdit ? "Update" : "Create" %>">
+        </div>
+      </form>
+    </section>
+  </main>
 </body>
 </html>

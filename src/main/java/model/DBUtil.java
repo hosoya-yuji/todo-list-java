@@ -6,30 +6,62 @@ import java.sql.SQLException;
 
 public class DBUtil {
 
-    // 既存の値をデフォルトとして残す（通常実行時はこちらが使われる）
-    private static final String DEFAULT_URL  =
-        "jdbc:mysql://localhost:3306/tododb?useSSL=false&serverTimezone=UTC";
+    private static final String DEFAULT_URL =
+            "jdbc:mysql://localhost:3306/tododb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String DEFAULT_USER = "root";
-    private static final String DEFAULT_PASS = "jagabata5";
+    private static final String DEFAULT_PASS = "Jagabata5";
 
-    // まず System.getProperty を見て、無ければ環境変数 → 最後にデフォルト
     private static String get(String key, String def) {
-        String v = System.getProperty(key);              // 例: -DDB_URL=...
-        if (v == null || v.isBlank()) v = System.getenv(key); // 例: 環境変数 DB_URL
-        return (v == null || v.isBlank()) ? def : v;
+        String value = blankToNull(System.getProperty(key));
+        if (value == null) {
+            value = blankToNull(System.getenv(key));
+        }
+        return value == null ? def : value;
     }
-    private static String url()  { return get("DB_URL",  DEFAULT_URL); }
-    private static String user() { return get("DB_USER", DEFAULT_USER); }
-    private static String pass() { return get("DB_PASS", DEFAULT_PASS); }
 
-    // ドライバは一度だけロード（JDBC 4 以降は不要なことが多いが、明示ロードで安定）
+    private static String blankToNull(String value) {
+        return (value == null || value.isBlank()) ? null : value;
+    }
+
+    private static String url() {
+        return normalizeMysqlUrl(get("DB_URL", DEFAULT_URL));
+    }
+
+    private static String user() {
+        return get("DB_USER", DEFAULT_USER);
+    }
+
+    private static String pass() {
+        return get("DB_PASS", DEFAULT_PASS);
+    }
+
+    private static String normalizeMysqlUrl(String rawUrl) {
+        String url = rawUrl;
+        if (!url.contains("allowPublicKeyRetrieval=")) {
+            url = appendQueryParam(url, "allowPublicKeyRetrieval=true");
+        }
+        if (!url.contains("serverTimezone=")) {
+            url = appendQueryParam(url, "serverTimezone=UTC");
+        }
+        if (!url.contains("sslMode=") && !url.contains("useSSL=")) {
+            url = appendQueryParam(url, "sslMode=DISABLED");
+        }
+        return url;
+    }
+
+    private static String appendQueryParam(String url, String param) {
+        return url + (url.contains("?") ? "&" : "?") + param;
+    }
+
     static {
+        loadDriverClass("com.mysql.cj.jdbc.Driver");
+    }
+
+    static void loadDriverClass(String driverClassName) {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName(driverClassName);
         } catch (ClassNotFoundException e) {
-            // ここで失敗する場合は mysql-connector-j-*.jar がクラスパスに無い
             throw new IllegalStateException("MySQL JDBC Driver not found", e);
-            // ※落としたくない場合は上の行をコメントアウトし、代わりに e.printStackTrace(); にする
         }
     }
 
