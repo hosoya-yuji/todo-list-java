@@ -21,7 +21,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= isEdit ? "Edit Task" : "New Task" %></title>
+  <title><%= isEdit ? "タスク編集" : "タスク作成" %></title>
   <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/app.css">
 </head>
 <body>
@@ -32,10 +32,10 @@
     <section class="panel">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Task Editor</p>
-          <h1><%= isEdit ? "Edit Task" : "Create Task" %></h1>
+          <p class="eyebrow">タスク編集</p>
+          <h1><%= isEdit ? "タスク編集" : "タスク作成" %></h1>
         </div>
-        <a class="btn btn-ghost" href="<%= request.getContextPath() %>/list">Back to List</a>
+        <a class="btn btn-ghost" href="<%= request.getContextPath() %>/list">一覧へ戻る</a>
       </header>
 
       <% if (error != null) { %>
@@ -47,16 +47,16 @@
           <input type="hidden" name="id" value="<%= idVal != null ? idVal : "" %>">
         <% } %>
 
-        <label for="title">Title</label>
+        <label for="title">タイトル</label>
         <input id="title" type="text" name="title" required maxlength="100" value="<%= titleVal != null ? titleVal : "" %>">
         <% if (errorTitle != null) { %>
           <p class="field-error"><%= errorTitle %></p>
         <% } %>
 
-        <label for="description">Description</label>
+        <label for="description">詳細</label>
         <textarea id="description" name="description" rows="4"><%= descVal != null ? descVal : "" %></textarea>
 
-        <label for="dueDate">Due Date</label>
+        <label for="dueDate">期限日</label>
         <input id="dueDate" type="date" name="dueDate" min="<%= today %>" value="<%= dueVal != null ? dueVal : "" %>">
         <% if (errorDue != null) { %>
           <p class="field-error"><%= errorDue %></p>
@@ -65,12 +65,12 @@
         <% if (isEdit) { %>
           <label class="check-row" for="isCompleted">
             <input id="isCompleted" type="checkbox" name="isCompleted" <%= checked ? "checked" : "" %>>
-            <span>Completed</span>
+            <span>完了</span>
           </label>
         <% } %>
 
         <div class="form-actions">
-          <input class="btn btn-primary" type="submit" value="<%= isEdit ? "Update" : "Create" %>">
+          <input class="btn btn-primary" type="submit" value="<%= isEdit ? "更新" : "作成" %>">
         </div>
       </form>
     </section>
