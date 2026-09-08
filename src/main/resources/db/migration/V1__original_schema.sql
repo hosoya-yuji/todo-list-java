@@ -1,0 +1,7 @@
+CREATE TABLE todos (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ title VARCHAR(100) NOT NULL,
+ description TEXT,
+ due_date DATE,
+ is_completed BOOLEAN NOT NULL DEFAULT FALSE
+);

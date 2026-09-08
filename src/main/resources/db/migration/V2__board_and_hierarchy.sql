@@ -1,0 +1,10 @@
+ALTER TABLE todos ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'OPEN';
+ALTER TABLE todos ADD COLUMN parent_id INT NULL;
+ALTER TABLE todos ADD COLUMN sort_order BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE todos ADD COLUMN version BIGINT NOT NULL DEFAULT 0;
+UPDATE todos SET status = CASE WHEN is_completed THEN 'DONE' ELSE 'OPEN' END, sort_order = id;
+ALTER TABLE todos DROP COLUMN is_completed;
+ALTER TABLE todos ADD CONSTRAINT fk_todo_parent FOREIGN KEY (parent_id) REFERENCES todos(id);
+CREATE INDEX idx_todos_column ON todos(status, sort_order);
+CREATE TABLE board_revision (id INT PRIMARY KEY, revision BIGINT NOT NULL);
+INSERT INTO board_revision VALUES (1, 0);

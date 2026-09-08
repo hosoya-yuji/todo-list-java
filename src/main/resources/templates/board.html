@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Taskboard — マイ課題</title>
+    <link rel="stylesheet" href="/app.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="/">▦ <span>Taskboard</span></a>
+      <p class="workspace">PERSONAL WORKSPACE</p>
+      <div class="project">
+        <span class="project-icon">T</span>
+        <div>マイプロジェクト<small>自分のペースで、ひとつずつ。</small></div>
+      </div>
+      <nav aria-label="表示切替">
+        <button id="board-tab" class="nav active" aria-pressed="true">
+          ▦　ボード</button
+        ><button id="list-tab" class="nav" aria-pressed="false">
+          ☷　課題一覧
+        </button>
+      </nav>
+      <div class="sidebar-note">小さな課題から、<br />大きな達成へ。</div>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">MY PROJECT / TASKS</p>
+          <h1 id="view-title">ボード</h1>
+          <p class="subtitle">課題を動かして、進捗を整えましょう。</p>
+        </div>
+        <button class="primary" id="add">＋ 課題を追加</button>
+      </header>
+      <section class="toolbar">
+        <label class="search"
+          >⌕
+          <input
+            id="search"
+            type="search"
+            placeholder="課題名・IDで検索"
+            aria-label="課題名・IDで検索" /></label
+        ><button id="refresh">更新</button><span id="summary"></span>
+      </section>
+      <p class="hint" id="hint">
+        カードをドラッグして状態・順番を変更できます。クリックすると詳細を開きます。
+      </p>
+      <div id="notice" role="status" aria-live="polite" hidden></div>
+      <section id="board" class="board" aria-label="課題ボード"></section>
+      <section
+        id="list"
+        class="task-list"
+        aria-label="課題一覧"
+        hidden
+      ></section>
+    </main>
+    <dialog id="editor" aria-labelledby="dialog-title">
+      <form id="task-form">
+        <div class="dialog-header">
+          <div>
+            <p id="task-key" class="eyebrow">NEW TASK</p>
+            <h2 id="dialog-title">課題を追加</h2>
+          </div>
+          <button type="button" id="close" aria-label="閉じる">✕</button>
+        </div>
+        <p id="form-error" role="alert" hidden></p>
+        <button type="button" id="reload-edit" hidden>
+          最新の内容を読み直す（入力を破棄）
+        </button>
+        <label
+          >タイトル <span class="required">必須</span
+          ><input name="title" required maxlength="100" autocomplete="off"
+        /></label>
+        <label
+          >詳細<textarea
+            name="description"
+            rows="4"
+            maxlength="10000"
+            placeholder="やることや補足を書いておきましょう"
+          ></textarea>
+        </label>
+        <div class="form-grid">
+          <label
+            >状態<select name="status">
+              <option value="OPEN">未対応</option>
+              <option value="IN_PROGRESS">処理中</option>
+              <option value="RESOLVED">処理済み</option>
+              <option value="DONE">完了</option>
+            </select></label
+          ><label>期限日<input name="dueDate" type="date" /></label>
+        </div>
+        <label>親課題<select name="parentId"></select></label>
+        <p class="field-help">
+          親・子の2階層で管理します。子課題がすべて完了すると、親課題も完了にできます。
+        </p>
+        <section id="children-section" hidden>
+          <div class="children-heading">
+            <h3>子課題 <span id="children-count"></span></h3>
+            <button type="button" id="add-child">＋ 子課題を追加</button>
+          </div>
+          <div id="children"></div>
+        </section>
+        <div class="form-actions">
+          <button type="button" class="danger" id="delete">削除</button
+          ><span></span><button type="button" id="cancel">キャンセル</button
+          ><button type="submit" class="primary">保存する</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

@@ -1,1 +1,8 @@
 /build/
+/target/
+/data/
+*.log
+.env
+/.tools/
+/.local/
+/backups/
